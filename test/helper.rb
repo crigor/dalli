@@ -8,6 +8,7 @@ require 'rails'
 puts "Testing with Rails #{Rails.version}"
 
 require 'test/unit'
+require 'minitest/spec'
 require 'shoulda'
 require 'memcached_mock'
 require 'mocha'
@@ -36,4 +37,8 @@ class Test::Unit::TestCase
     require 'action_controller'
     yield
   end
+end
+
+class MiniTest::Spec
+  include MemcachedMock::Helper
 end
