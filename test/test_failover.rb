@@ -1,9 +1,9 @@
 require 'helper'
 
-class TestFailover < Test::Unit::TestCase
-  context 'assuming some bad servers' do
+describe 'Failover' do
+  describe 'assuming some bad servers' do
 
-    should 'silently reconnect if server hiccups' do
+    it 'should silently reconnect if server hiccups' do
       memcached(29125) do
         dc = Dalli::Client.new ['localhost:29125']
         dc.set 'foo', 'bar'
@@ -21,7 +21,7 @@ class TestFailover < Test::Unit::TestCase
       end
     end
 
-    should 'handle graceful failover' do
+    it 'should handle graceful failover' do
       memcached(29125) do
         memcached(29126) do
           dc = Dalli::Client.new ['localhost:29125', 'localhost:29126']
@@ -37,14 +37,14 @@ class TestFailover < Test::Unit::TestCase
 
           memcached_kill(29126)
 
-          assert_raise Dalli::RingError, :message => "No server available" do
+          assert_raises Dalli::RingError, :message => "No server available" do
             dc.set 'foo', 'bar'
           end
         end
       end
     end
 
-    should 'handle them gracefully in get_multi' do
+    it 'should handle them gracefully in get_multi' do
       memcached(29125) do
         memcached(29126) do
           dc = Dalli::Client.new ['localhost:29125', 'localhost:29126']
@@ -60,7 +60,7 @@ class TestFailover < Test::Unit::TestCase
       end
     end
 
-    should 'handle graceful failover in get_multi' do
+    it 'should handle graceful failover in get_multi' do
       memcached(29125) do
         memcached(29126) do
           dc = Dalli::Client.new ['localhost:29125', 'localhost:29126']
@@ -84,7 +84,7 @@ class TestFailover < Test::Unit::TestCase
       end
     end
 
-    should 'stats should still properly report' do
+    it 'stats should still properly report' do
       memcached(29125) do
         memcached(29126) do
           dc = Dalli::Client.new ['localhost:29125', 'localhost:29126']
