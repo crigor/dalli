@@ -41,4 +41,9 @@ end
 
 class MiniTest::Spec
   include MemcachedMock::Helper
+
+  def with_activesupport
+    require 'active_support/all'
+    yield
+  end
 end

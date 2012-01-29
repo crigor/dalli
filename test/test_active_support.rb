@@ -1,12 +1,13 @@
 # encoding: utf-8
 require 'helper'
 
-class TestActiveSupport < Test::Unit::TestCase
-  context 'active_support caching' do
+describe 'ActiveSupport' do
 
-    should 'support fetch' do
+  describe 'active_support caching' do
+
+    it 'should support fetch' do
       with_activesupport do
-        memcached do
+        memcached(19999) do
           connect
           mvalue = @mc.fetch('somekeywithoutspaces', :expires_in => 1.second) { 123 }
           dvalue = @dalli.fetch('someotherkeywithoutspaces', :expires_in => 1.second) { 123 }
@@ -28,9 +29,9 @@ class TestActiveSupport < Test::Unit::TestCase
       end
     end
 
-    should 'support keys with spaces on Rails3' do
+    it 'should support keys with spaces on Rails3' do
       with_activesupport do
-        memcached do
+        memcached(19999) do
           connect
           dvalue = @mc.fetch('some key with spaces', :expires_in => 1.second) { 123 }
           mvalue = @dalli.fetch('some other key with spaces', :expires_in => 1.second) { 123 }
@@ -39,9 +40,9 @@ class TestActiveSupport < Test::Unit::TestCase
       end
     end
 
-    should 'support read_multi' do
+    it 'should support read_multi' do
       with_activesupport do
-        memcached do
+        memcached(19999) do
           connect
           x = rand_key
           y = rand_key
@@ -57,9 +58,9 @@ class TestActiveSupport < Test::Unit::TestCase
       end
     end
 
-    should 'support read_multi with an array' do
+    it 'should support read_multi with an array' do
       with_activesupport do
-        memcached do
+        memcached(19999) do
           connect
           x = rand_key
           y = rand_key
@@ -75,9 +76,9 @@ class TestActiveSupport < Test::Unit::TestCase
       end
     end
 
-    should 'support raw read_multi' do
+    it 'should support raw read_multi' do
       with_activesupport do
-        memcached do
+        memcached(19999) do
           connect
           @mc.write("abc", 5, :raw => true)
           @mc.write("cba", 5, :raw => true)
@@ -90,9 +91,9 @@ class TestActiveSupport < Test::Unit::TestCase
       end
     end
 
-    should 'support read, write and delete' do
+    it 'should support read, write and delete' do
       with_activesupport do
-        memcached do
+        memcached(19999) do
           connect
           x = rand_key
           y = rand_key
@@ -115,9 +116,9 @@ class TestActiveSupport < Test::Unit::TestCase
       end
     end
 
-    should 'support increment/decrement commands' do
+    it 'should support increment/decrement commands' do
       with_activesupport do
-        memcached do
+        memcached(19999) do
           connect
           assert_equal true, @mc.write('counter', 0, :raw => true)
           assert_equal 1, @mc.increment('counter')
@@ -142,9 +143,9 @@ class TestActiveSupport < Test::Unit::TestCase
       end
     end
 
-    should 'support other esoteric commands' do
+    it 'should support other esoteric commands' do
       with_activesupport do
-        memcached do
+        memcached(19999) do
           connect
           ms = @mc.stats
           ds = @dalli.stats
@@ -166,9 +167,10 @@ class TestActiveSupport < Test::Unit::TestCase
     end
   end
 
-  should 'handle crazy characters from far-away lands' do
+  describe 'foo' do
+  it 'should handle crazy characters from far-away lands' do
     with_activesupport do
-      memcached do
+      memcached(19999) do
         connect
         key = "fooƒ"
         value = 'bafƒ'
@@ -180,22 +182,23 @@ class TestActiveSupport < Test::Unit::TestCase
     end
   end
 
-  should 'normalize options as expected' do
+  it 'should normalize options as expected' do
     with_activesupport do
-      memcached do
-        @dalli = ActiveSupport::Cache::DalliStore.new('localhost:19122', :expires_in => 1, :race_condition_ttl => 1)
+      memcached(19999) do
+        @dalli = ActiveSupport::Cache::DalliStore.new('localhost:1999', :expires_in => 1, :race_condition_ttl => 1)
         assert_equal 2, @dalli.instance_variable_get(:@data).instance_variable_get(:@options)[:expires_in]
       end
     end
   end
-
-  def connect
-    @dalli = ActiveSupport::Cache.lookup_store(:dalli_store, 'localhost:19122', :expires_in => 10.seconds, :namespace => 'x')
-    @mc = ActiveSupport::Cache.lookup_store(:mem_cache_store, 'localhost:19122', :expires_in => 10.seconds, :namespace => 'a')
-    @dalli.clear
   end
+end
 
-  def rand_key
-    rand(1_000_000_000)
-  end
+def connect
+  @dalli = ActiveSupport::Cache.lookup_store(:dalli_store, 'localhost:19999', :expires_in => 10.seconds, :namespace => 'x')
+  @mc = ActiveSupport::Cache.lookup_store(:mem_cache_store, 'localhost:19999', :expires_in => 10.seconds, :namespace => 'a')
+  @dalli.clear
+end
+
+def rand_key
+  rand(1_000_000_000)
 end
