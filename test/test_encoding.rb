@@ -2,11 +2,10 @@
 require 'helper'
 require 'memcached_mock'
 
-class TestEncoding < Test::Unit::TestCase
-
-  context 'using a live server' do
-    should 'support i18n content' do
-      memcached do |dc|
+describe 'Encoding' do
+  describe 'using a live server' do
+    it 'should support i18n content' do
+      memcached(19999) do |dc|
         key = 'foo'
         bad_key = utf8 = 'ƒ©åÍÎ'
 
@@ -14,14 +13,14 @@ class TestEncoding < Test::Unit::TestCase
         assert_equal utf8, dc.get(key)
 
         # keys must be ASCII
-        assert_raise ArgumentError, /illegal character/ do
+        assert_raises ArgumentError, /illegal character/ do
           dc.set(bad_key, utf8)
         end
       end
     end
 
-    should 'support content expiry' do
-      memcached do |dc|
+    it 'should support content expiry' do
+      memcached(19999) do |dc|
         key = 'foo'
         assert dc.set(key, 'bar', 1)
         assert_equal 'bar', dc.get(key)
@@ -30,14 +29,13 @@ class TestEncoding < Test::Unit::TestCase
       end
     end
 
-    should 'not allow non-ASCII keys' do
-      memcached do |dc|
+    it 'should not allow non-ASCII keys' do
+      memcached(19999) do |dc|
         key = 'fooƒ'
-        assert_raise ArgumentError do
+        assert_raises ArgumentError do
           dc.set(key, 'bar')
         end
       end
     end
-
   end
 end
